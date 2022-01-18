@@ -1,0 +1,8 @@
+*
+!.git/
+!cmd/
+!internal/
+
+!go.mod
+!go.sum
+!Makefile

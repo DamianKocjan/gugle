@@ -1,0 +1,45 @@
+version: 3.9
+
+services:
+  postgres:
+    container_name: "gugle-postgres"
+    restart: unless-stopped
+    image: "postgres:13"
+    ports:
+      # NOTE: To avoid overlapping with any Postgres database run on the host machine,
+      # we bind Postgres to port "15432" instead.
+      - "15432:5432"
+    volumes:
+      - "pgdata:/var/lib/postgresql/data/"
+    environment:
+      POSTGRES_PASSWORD: postgres
+  go:
+    container_name: "gugle-go"
+    restart: unless-stopped
+    image: "gugle/go:latest"
+    ports:
+      - "8080:8080"
+    volumes:
+      - "go:/go"
+      - "gugle-postgres:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gugle
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 15432
+
+  frontend:
+    container_name: "gugle-frontend"
+    restart: unless-stopped
+    image: "gugle/frontend:latest"
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "3002:3002"
+      - "3003:3003"
+      - "3004:3004"
+    volumes:
+      - "frontend:/go/src/github.com/gugle/frontend"
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:8080"
